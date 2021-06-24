@@ -1,0 +1,75 @@
+#' Geom function for draw piechart label.
+#' @title Pie Label Geom
+#' @inheritParams ggplot2::layer
+#' @inheritParams ggplot2::geom_text
+#' @section Aesthetics:
+#' \code{geom_pie_label()} understands the following aesthetics (required aesthetics are in bold):
+#'     \itemize{
+#'       \item \strong{\code{x}}
+#'       \item \strong{\code{y}}
+#'       \item \code{alpha}
+#'       \item \code{angle}
+#'       \item \code{colour}
+#'       \item \code{family}
+#'       \item \code{fill}
+#'       \item \code{fontface}
+#'       \item \code{group}
+#'       \item \code{hjust}
+#'       \item \code{lineheight}
+#'       \item \code{size}
+#'       \item \code{vjust}
+#'    }
+#' @importFrom ggplot2 geom_label
+#' @importFrom ggplot2 ggplot_add
+#' @importFrom grid unit
+#' @rdname geom_pie_text
+#' @export
+geom_pie_label <- function(mapping = NULL,
+                           data = NULL,
+                           ...,
+                           parse = FALSE,
+                           nudge_x = 0,
+                           nudge_y = 0,
+                           label.padding = unit(0.25, "lines"),
+                           label.r = unit(0.15, "lines"),
+                           label.size = 0.25,
+                           na.rm = FALSE,
+                           show.legend = NA,
+                           inherit.aes = TRUE) {
+  structure(.Data = list(mapping = mapping,
+                         data = data,
+                         parse = parse,
+                         nudge_x = nudge_x,
+                         nudge_y = nudge_y,
+                         label.padding = label.padding,
+                         label.r = label.r,
+                         label.size = label.size,
+                         na.rm = na.rm,
+                         show.legend = show.legend,
+                         inherit.aes = inherit.aes,
+                         ...),
+            class = "geom_pie_label")
+}
+
+#' @importFrom ggplot2 ggplot_add
+#' @export
+ggplot_add.geom_pie_label <- function(object, plot, object_name) {
+  if(!is_piechart(plot)) {
+    stop("`geom_pie_label()` can only be added on a piechart plot.", call. = FALSE)
+  }
+  if(is.null(object$data) || is.function(object$data)) {
+    data <- plot$data
+  } else {
+    data <- object$data
+  }
+
+  stopifnot(is_piechart_data(data))
+  .isLabel <- NULL
+  data <- dplyr::filter(data, .isLabel)
+  if(is.function(object$data)) {
+    data <- do.call(object$data, list(data = data))
+  }
+  object$data <- data
+  object <- do.call(geom_label, object)
+  ggplot_add(object, plot, object_name)
+}

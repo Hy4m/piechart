@@ -1,0 +1,18 @@
+Package: piechart
+Type: Package
+Title: Tools for Draw Piecharts
+Version: 0.0.1
+Author: Houyun Huang <houyunhuang@163.com>
+Maintainer: Houyun Huang <houyunhuang@163.com>
+Description: The 'piechart' package can be used to draw a piecharts
+    simply and directly based on 'ggplot2'.
+License: GPL-2
+URL: https://github.com/Hy4m/piechart
+BugReports: https://github.com/Hy4m/piechart/issues
+LazyData: TRUE
+Encoding: UTF-8
+Depends: R (>= 3.5.0)
+Imports: dplyr, ggplot2 (>= 3.0.0), grid, rlang, purrr, scales, stats, tibble, utils
+Suggests: knitr, rmarkdown
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr
