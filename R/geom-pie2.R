@@ -2,9 +2,8 @@
 #' Function to draw scatter piechart.
 #' @param sort_by a character vector of variable name.
 #' @param decreasing logical. Should the sort order be increasing or decreasing?
-#' @param start offset of starting point from 3 o'clock in radians.
+#' @param start,end offset of starting and ending point from 3 o'clock in radians.
 #' @param steps increment of the sequence in radians.
-#' @param sum_value sum of the value.
 #' @param label.facing one of downward, binding or clockwise.
 #' @param label.size the size of label.
 #' @param label.col the color of label.
@@ -47,9 +46,9 @@ geom_pie2 <- function(mapping = NULL,
                       inherit.aes = TRUE,
                       sort_by = NULL,
                       decreasing = TRUE,
-                      start = 90,
+                      start = 0,
+                      end = 360,
                       steps = 0.001,
-                      sum_value = NULL,
                       label.facing = "downward",
                       label.size = 3.88,
                       label.col = "black",
@@ -65,8 +64,8 @@ geom_pie2 <- function(mapping = NULL,
     params = list(sort_by = sort_by,
                   decreasing = decreasing,
                   start = start,
+                  end = end,
                   steps = steps,
-                  sum_value = sum_value,
                   label.facing = label.facing,
                   label.size = label.size,
                   label.col = label.col,
@@ -101,9 +100,9 @@ GeomPie2 <- ggplot2::ggproto(
                         coord,
                         sort_by = NULL,
                         decreasing = TRUE,
-                        start = 90,
+                        start = 0,
+                        end = 360,
                         steps = 0.001,
-                        sum_value = NULL,
                         label.facing = "downward",
                         label.size = 3.88,
                         label.col = "black") {
@@ -135,9 +134,9 @@ GeomPie2 <- ggplot2::ggproto(
                         r0 = .data$r0,
                         r1 = .data$r1,
                         start = start,
+                        end = end,
                         sep = .data$sep,
                         steps = steps,
-                        sum_value = sum_value,
                         radius = first_row$radius,
                         label.facing = label.facing,
                         label.size = label.size * ggplot2::.pt,

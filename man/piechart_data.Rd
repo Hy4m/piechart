@@ -10,9 +10,9 @@ piechart_data(
   facet = NULL,
   sort_by = NULL,
   decreasing = TRUE,
-  start = 90,
+  start = 0,
+  end = 360,
   steps = 0.01,
-  sum_value = NULL,
   ...
 )
 }
@@ -27,11 +27,9 @@ piechart_data(
 
 \item{decreasing}{logical. Should the sort order be increasing or decreasing?}
 
-\item{start}{offset of starting point from 3 o'clock in degree.}
+\item{start, end}{offset of starting and ending point from 3 o'clock in degree.}
 
 \item{steps}{increment of the sequence in radians.}
-
-\item{sum_value}{sum of the value.}
 
 \item{...}{extra parameters.}
 }

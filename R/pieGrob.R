@@ -4,10 +4,9 @@
 #' @param label label for each sector.
 #' @param x,y a scala numeric value.
 #' @param r0,r1 the radius of piechart, should be between 0 and 1.
-#' @param start offset of starting point from 3 o'clock in degrees.
+#' @param start,end offset of starting point from 3 o'clock in degrees.
 #' @param sep gap bewteen two adjacent sectors.
 #' @param steps increment of the sequence in radians.
-#' @param sum_value sum of the value.
 #' @param radius the size (in mm) of pie.
 #' @param label.facing one of downward, binding or clockwise.
 #' @param label.size the size of label.
@@ -36,10 +35,10 @@ pieGrob <- function(value = runif(10),
                     y = 0.5,
                     r0 = 0.5,
                     r1 = 1,
-                    start = 90,
+                    start = 0,
+                    end = 360,
                     sep = 0,
                     steps = 0.001,
-                    sum_value = NULL,
                     radius = 10,
                     label.facing = "downward",
                     label.size = 12,
@@ -52,11 +51,9 @@ pieGrob <- function(value = runif(10),
                       r0    = r0,
                       r1    = r1,
                       start = start,
+                      end = end,
                       sep  = sep,
-                      steps = steps,
-                      sum_value = sum_value,
-                      cx    = 0,
-                      cy    = 0)
+                      steps = steps)
   sectors <- dd[!dd$.isLabel, , drop = FALSE]
   labels <- dd[dd$.isLabel, , drop = FALSE]
 

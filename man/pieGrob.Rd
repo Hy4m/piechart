@@ -12,10 +12,10 @@ pieGrob(
   y = 0.5,
   r0 = 0.5,
   r1 = 1,
-  start = 90,
+  start = 0,
+  end = 360,
   sep = 0,
   steps = 0.001,
-  sum_value = NULL,
   radius = 10,
   label.facing = "downward",
   label.size = 12,
@@ -35,13 +35,11 @@ grid.pie(...)
 
 \item{r0, r1}{the radius of piechart, should be between 0 and 1.}
 
-\item{start}{offset of starting point from 3 o'clock in degrees.}
+\item{start, end}{offset of starting point from 3 o'clock in degrees.}
 
 \item{sep}{gap bewteen two adjacent sectors.}
 
 \item{steps}{increment of the sequence in radians.}
-
-\item{sum_value}{sum of the value.}
 
 \item{radius}{the size (in mm) of pie.}
 

@@ -154,7 +154,7 @@ geom_ctext <- function(mapping = NULL,
 #' @export
 ggplot_add.geom_ctext <- function(object, plot, object_name) {
   if(!is_piechart(plot)) {
-    stop("`geom_hp_ctext()` can only be added on a piechart plot.", call. = FALSE)
+    stop("`geom_ctext()` can only be added on a piechart plot.", call. = FALSE)
   }
   hjust <- match.arg(object$hjust, c("left", "middle", "right"))
 
@@ -167,22 +167,22 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
   data <- attr(data, "ctext")
 
   if(hjust == "left") {
-    angle <- radian((data$.start - 1) %% 360)
+    angle <- radian((data$.start + 1) %% 360)
+    x <- cos(angle) * data$.r
+    y <- sin(angle) * data$.r
+    rot <- data$.start + 1
+    hjust <- 1
+  } else if(hjust == "right") {
+    angle <- radian((data$.end - 1) %% 360)
     x <- cos(angle) * data$.r
     y <- sin(angle) * data$.r
     rot <- data$.start - 1
     hjust <- 0
-  } else if(hjust == "right") {
-    angle <- radian((data$.start - data$.open + 1) %% 360)
-    x <- cos(angle) * data$.r
-    y <- sin(angle) * data$.r
-    rot <- data$.start - data$.open + 1
-    hjust <- 1
   } else {
-    angle <- radian((data$.start - 0.5 * data$.open) %% 360)
+    angle <- radian(((data$.start + data$.end) / 2 + 180) %% 360)
     x <- cos(angle) * data$.r
     y <- sin(angle) * data$.r
-    rot <- data$.start - 0.5 * data$.open
+    rot <- (data$.start + data$.end) / 2 + 180
     hjust <- 0.5
   }
 

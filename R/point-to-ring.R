@@ -3,24 +3,19 @@
 #' @noRd
 point_to_ring <- function(value = runif(5),
                           label = NULL,
-                          start = 90,
+                          start = 0,
+                          end = 360,
                           r0 = 0.5,
                           r1 = 1,
                           sep = 0,
-                          steps = 0.001,
-                          sum_value = NULL,
-                          cx = 0,
-                          cy = 0)
+                          steps = 0.001)
 {
   if(!is.numeric(value) || length(value) == 0 || any(value < 0) ||
      any(!is.finite(value)) || !any(value > 0)) {
     stop("Data error: 'value' should be positive and finite.", call. = FALSE)
   }
 
-  if(is.null(sum_value)) {
-    sum_value <- sum(value, na.rm = TRUE)
-  }
-  ratio <- value / sum_value
+  ratio <- value / sum(value, na.rm = TRUE)
   ll <- length(ratio)
   label <- label %||% names(value) %||% NA
   label <- rep_len(label, ll)
@@ -36,28 +31,50 @@ point_to_ring <- function(value = runif(5),
     stop("The value of 'sep' is too large.", call. = FALSE)
   }
 
+  if(start < 0) {
+    start <- 360 - (start %% 360)
+  }
+  if(start > 360) {
+    start <- start %% 360
+  }
+
+  if(end < 0) {
+    end <- 360 - (end %% 360)
+  }
+  if(end > 360) {
+    end <- end %% 360
+  }
+
+  if(start < end) {
+    end <- end - 360
+  }
+
+  if(start == end) {
+    end <- start + 360
+  }
+
+
+
   start <- radian(start)
+  end <- radian(end)
   sep <- radian(sep)
 
-  width <- ratio * 2 * pi
+  width <- ratio * (abs(end - start))
   net_width <- width - sep
-  s <- c(start,  start + cumsum(width)[-ll])
-  e <- s + net_width
+  s <- c(start,  start - cumsum(width)[-ll])
+  e <- s - net_width
   param <- list(s, e, seq_len(ll), ratio, r0, r1)
 
   polygon_pos <- purrr::pmap_dfr(param, function(.start, .end, .n, .ratio, .r0, .r1) {
-    if(.start > .end) {
-      temp <- .start
-      .start <- .end
-      .end <- temp
-    }
 
+    if(.start > .end) {
+      steps <- -steps
+    }
     angles <- seq(.start, .end, by = steps)
     angles[length(angles)] <- .end
-    xpos <- c(cos(angles) * .r0, cos(rev(angles)) * .r1)
-    ypos <- c(sin(angles) * .r0, sin(rev(angles)) * .r1)
-    tibble(.x       = cx + xpos,
-           .y       = cy + ypos,
+
+    tibble(.x       = c(cos(angles) * .r0, cos(rev(angles)) * .r1),
+           .y       = c(sin(angles) * .r0, sin(rev(angles)) * .r1),
            .group   = .n,
            .ratio   = .ratio,
            .isLabel = FALSE)

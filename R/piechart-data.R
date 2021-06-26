@@ -5,9 +5,8 @@
 #' @param facet NULL or a formula.
 #' @param sort_by a character vector of variable name.
 #' @param decreasing logical. Should the sort order be increasing or decreasing?
-#' @param start offset of starting point from 3 o'clock in degree.
+#' @param start,end offset of starting and ending point from 3 o'clock in degree.
 #' @param steps increment of the sequence in radians.
-#' @param sum_value sum of the value.
 #' @param ... extra parameters.
 #' @return a data frame.
 #' @rdname piechart_data
@@ -24,9 +23,9 @@ piechart_data <- function(data,
                           facet = NULL,
                           sort_by = NULL,
                           decreasing = TRUE,
-                          start = 90,
+                          start = 0,
+                          end = 360,
                           steps = 0.01,
-                          sum_value = NULL,
                           ...)
 {
   if(!is_uneval(mapping)) {
@@ -38,13 +37,13 @@ piechart_data <- function(data,
     data <- data[do.call(order, params), , drop = FALSE]
   }
 
-  base_mapping <- aes(r0 = 0.5, r1 = 1, sep = 0, group = 1L, label = NA)
+  base_mapping <- aes(r0 = 0.5, r1 = 1, sep = 0, label = NA)
   mapping <- modifyList(base_mapping, mapping)
   mapping <- modifyList(mapping, list(...))
 
   base_data <- extract_data(data, mapping[c("value", "r0", "r1", "sep",
-                                            "group", "label")])
-  non_na <- complete.cases(base_data[ , c("value", "r0", "r1", "sep", "group"),
+                                            "label")])
+  non_na <- complete.cases(base_data[ , c("value", "r0", "r1", "sep"),
                                       drop = FALSE])
 
   if(!any(non_na)) {
@@ -56,43 +55,26 @@ piechart_data <- function(data,
   value <- r0 <- r1 <- sep <- group <- label <- NULL
   base_data <- dplyr::rename(base_data[non_na, , drop = FALSE],
                              .value = value, .r0 = r0, .r1 = r1, .sep = sep,
-                             .group = group, .label = label)
+                             .label = label)
   all_data <- dplyr::bind_cols(base_data, data[non_na, , drop = FALSE])
   data <- split_by_group(all_data, facet = facet)
   ex_name <- setdiff(names(all_data), c(".value", ".r0", ".r1", ".sep",
                                         ".group", ".label"))
 
-  out <- purrr::map_dfr(data, function(.data) {
-    n_group <- length(unique(.data$.group))
-    start <- rep_len(start, n_group)
-    if(!is.null(sum_value)) {
-      sum_value <- rep_len(sum_value, n_group)
-    }
-
-    groups <- .data$.group
-    .data <- split(.data, groups)
-
-    purrr::map2_dfr(seq_len(n_group), names(.data),
-                    function(.id, .name) {
-                      if(!is.null(sum_value)) {
-                        sum_value <- sum_value[.id]
-                      }
-                      dd <- point_to_ring(value     = .data[[.id]]$.value,
-                                          label     = .data[[.id]]$.label,
-                                          start     = start[.id],
-                                          r0        = .data[[.id]]$.r0,
-                                          r1        = .data[[.id]]$.r1,
-                                          sep       = .data[[.id]]$.sep,
-                                          steps     = steps,
-                                          sum_value = sum_value)
-                      ids <- seq_len(nrow(.data[[.id]]))[dd$.group]
-                      dd$.group <- paste(.name, dd$.group, sep = "--")
-                      dplyr::bind_cols(dd, .data[[.id]][ids, ex_name, drop = FALSE])
-                    })
-  })
-
+  out <- purrr::map2_dfr(data, seq_along(data), function(.data, .id) {
+    dd <- point_to_ring(value     = .data$.value,
+                        label     = .data$.label,
+                        start     = start,
+                        end       = end,
+                        r0        = .data$.r0,
+                        r1        = .data$.r1,
+                        sep       = .data$.sep,
+                        steps     = steps)
+    dd <- dplyr::bind_cols(dd, .data[dd$.group, ex_name, drop = FALSE])
+    dd$.group <- paste(.id, dd$.group, sep = "--")
+    dd
+    })
   out$.value <- rlang::eval_tidy(mapping$value, out)
-
   structure(out, class = c("piechart_data", class(out)))
 }
 

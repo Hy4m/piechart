@@ -11,8 +11,8 @@ as_piechart_data(x, ...)
 
 \method{as_piechart_data}{matrix}(
   x,
-  start = 90,
-  open = 90,
+  start = 0,
+  end = 360,
   r0 = 0.5,
   r1 = 1,
   row_names = NULL,
@@ -28,9 +28,7 @@ as_piechart_data(x, ...)
 
 \item{...}{extra parameters.}
 
-\item{start}{offset of starting point from 3 o'clock in degree.}
-
-\item{open}{size of opening angle in degree.}
+\item{start, end}{offset of starting and ending point from 3 o'clock in degree.}
 
 \item{r0, r1}{start and end radius of arc heatmap.}
 
