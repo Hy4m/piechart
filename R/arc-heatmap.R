@@ -191,6 +191,7 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
                          label = data$.label,
                          angle = (rot - 90) %% 360,
                          hjust = hjust)
+  data$angle <- ifelse(data$angle > 180, data$angle -180, data$angle)
   object$data <- data
 
   object$mapping <- if(is.null(object$mapping)) {
