@@ -112,17 +112,11 @@ GeomPie2 <- ggplot2::ggproto(
       data <- data[ids, , drop = FALSE]
     }
 
-    if(!is.null(sum_value)) {
-      sum_value <- rep_len(sum_value, length(unique(data$group)))
-    }
     data <- coord$transform(data, panel_params)
     data_list <- split(data, data$group)
     grobs <- lapply(seq_along(data_list),
                     function(.id) {
                       .data <- data_list[[.id]]
-                      if(!is.null(sum_value)) {
-                        sum_value <- sum_value[.id]
-                      }
                       n <- nrow(.data)
                       if (n < 1) return(grid::nullGrob())
                       first_row <- .data[1, , drop = FALSE]
