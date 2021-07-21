@@ -5,6 +5,7 @@
 \alias{reexports}
 \alias{ggplot_add}
 \alias{aes}
+\alias{\%>\%}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -13,5 +14,7 @@ below to see their documentation.
 
 \describe{
   \item{ggplot2}{\code{\link[ggplot2]{aes}}, \code{\link[ggplot2]{ggplot_add}}}
+
+  \item{magrittr}{\code{\link[magrittr:pipe]{\%>\%}}}
 }}
 

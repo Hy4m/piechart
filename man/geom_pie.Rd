@@ -12,6 +12,7 @@ geom_pie(
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
+  ID = NULL,
   ...
 )
 }
@@ -55,6 +56,8 @@ display.}
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
+
+\item{ID}{character.}
 
 \item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}. These are
 often aesthetics, used to set an aesthetic to a fixed value, like

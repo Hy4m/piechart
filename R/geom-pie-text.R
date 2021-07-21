@@ -6,6 +6,7 @@
 #' @param nice_facing logical value.
 #' @param position one of middle, top-outside, top-inside, bottom-outside,
 #' bottom-inside.
+#' @param ID character.
 #' @section Aesthetics:
 #' \code{geom_pie_text()} understands the following aesthetics (required aesthetics are in bold):
 #'     \itemize{
@@ -34,7 +35,8 @@ geom_pie_text <- function(mapping = NULL,
                           inherit.aes = TRUE,
                           facing = "downward",
                           nice_facing = TRUE,
-                          position = "middle") {
+                          position = "middle",
+                          ID = NULL) {
   structure(.Data = list(mapping = mapping,
                          data = data,
                          parse = parse,
@@ -47,6 +49,7 @@ geom_pie_text <- function(mapping = NULL,
                          facing = facing,
                          nice_facing = nice_facing,
                          position = position,
+                         ID = ID,
                          ...),
             class = "geom_pie_text")
 }
@@ -61,7 +64,9 @@ ggplot_add.geom_pie_text <- function(object, plot, object_name) {
   position <- match.arg(position, c("middle", "top-outside", "bottom-outside",
                                     "top-inside", "bottom-inside"))
 
-  if(is.null(object$data) || is.function(object$data)) {
+  if(!is.null(object$ID)) {
+    data <- plot$plot_env[[object$ID]]
+  } else if(is.null(object$data) || is.function(object$data)) {
     data <- plot$data
   } else {
     data <- object$data
@@ -120,7 +125,7 @@ ggplot_add.geom_pie_text <- function(object, plot, object_name) {
       vjust <- 0
     }
     if(object$facing == "clockwise") {
-      hjust <- ifelse(.angle > 270 | .angle < 90, 0, 1)
+      hjust <- ifelse(.angle >= 270 | .angle < 90, 0, 1)
     }
   }
 
@@ -137,7 +142,7 @@ ggplot_add.geom_pie_text <- function(object, plot, object_name) {
     modifyList(object$mapping, aes_(angle = ~.angle, hjust = ~hjust, vjust = ~vjust))
   }
 
-  object <- object[setdiff(names(object), c("facing", "nice_facing", "position"))]
+  object <- object[setdiff(names(object), c("facing", "nice_facing", "position", "ID"))]
 
   object <- do.call(geom_text, object)
   ggplot_add(object, plot, object_name)

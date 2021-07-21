@@ -7,6 +7,7 @@
 #' @param extra_mat named list of extra matrix data.
 #' @param ... extra parameters.
 #' @return a piechart data.
+#' @importFrom magrittr %>%
 #' @rdname as_piechart_data
 #' @examples
 #' as_piechart_data(as.matrix(mtcars))
@@ -40,14 +41,20 @@ as_piechart_data.matrix <- function(x,
     r0 <- r1
     r1 <- temp
   }
+  rnm <- rownames(x) %||% row_names %||% paste0("Row", seq_len(n))
+  cnm <- colnames(x) %||% col_names %||% paste0("Col", seq_len(m))
+
+  META <- list(r0 = r0,
+               r1 = r1,
+               start = start,
+               end = end,
+               row_names = rnm,
+               col_names = cnm)
 
   ur <- (r1 - r0) / m
   r0 <- r0 + (seq_len(m) - 1) * ur
   r1 <- r1 - rev(seq_len(m) - 1) * ur
 
-
-  rnm <- rownames(x) %||% row_names %||% paste0("Row", seq_len(n))
-  cnm <- colnames(x) %||% col_names %||% paste0("Col", seq_len(m))
   ids <- expand.grid(row_names = rnm,
                      col_names = cnm)
   ids$value <- as.vector(x)
@@ -58,18 +65,18 @@ as_piechart_data.matrix <- function(x,
   for(i in ex_nm) {
     ids[[i]] <- as.vector(as.matrix(extra_mat[[i]]))
   }
+
+  .isLabel <- .label <- .r0 <- .r1 <- .angle <- NULL
   data <- piechart_data(ids,
                         mapping = aes_(value = ~1, r0 = ~r0, r1 = ~r1,
                                       label = ~row_names),
                         start = start,
                         end = end,
                         facet = . ~ col_names,
-                        ...)
-  ctext <- tibble::tibble(.r = (r0 + r1) / 2,
-                          .label = cnm,
-                          .start = start,
-                          .end = end)
-  structure(.Data = data, ctext = ctext,
+                        ...) %>%
+    dplyr::filter(!.isLabel) %>%
+    dplyr::select(-.ratio, -.isLabel, -.label, -.angle, -.r0, -.r1)
+  structure(.Data = data, META = META,
             class = c("hp_data", class(data)))
 }
 

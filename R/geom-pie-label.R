@@ -1,5 +1,6 @@
 #' Geom function for draw piechart label.
 #' @title Pie Label Geom
+#' @param ID character.
 #' @inheritParams ggplot2::layer
 #' @inheritParams ggplot2::geom_text
 #' @section Aesthetics:
@@ -35,7 +36,8 @@ geom_pie_label <- function(mapping = NULL,
                            label.size = 0.25,
                            na.rm = FALSE,
                            show.legend = NA,
-                           inherit.aes = TRUE) {
+                           inherit.aes = TRUE,
+                           ID = NULL) {
   structure(.Data = list(mapping = mapping,
                          data = data,
                          parse = parse,
@@ -47,6 +49,7 @@ geom_pie_label <- function(mapping = NULL,
                          na.rm = na.rm,
                          show.legend = show.legend,
                          inherit.aes = inherit.aes,
+                         ID = ID,
                          ...),
             class = "geom_pie_label")
 }
@@ -57,7 +60,9 @@ ggplot_add.geom_pie_label <- function(object, plot, object_name) {
   if(!is_piechart(plot)) {
     stop("`geom_pie_label()` can only be added on a piechart plot.", call. = FALSE)
   }
-  if(is.null(object$data) || is.function(object$data)) {
+  if(!is.null(object$ID)) {
+    data <- plot$plot_env[[object$ID]]
+  } else if(is.null(object$data) || is.function(object$data)) {
     data <- plot$data
   } else {
     data <- object$data
@@ -70,6 +75,7 @@ ggplot_add.geom_pie_label <- function(object, plot, object_name) {
     data <- do.call(object$data, list(data = data))
   }
   object$data <- data
+  object <- object[setdiff(names(object), "ID")]
   object <- do.call(geom_label, object)
   ggplot_add(object, plot, object_name)
 }

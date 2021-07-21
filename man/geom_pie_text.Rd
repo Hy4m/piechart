@@ -17,7 +17,8 @@ geom_pie_label(
   label.size = 0.25,
   na.rm = FALSE,
   show.legend = NA,
-  inherit.aes = TRUE
+  inherit.aes = TRUE,
+  ID = NULL
 )
 
 geom_pie_text(
@@ -33,7 +34,8 @@ geom_pie_text(
   inherit.aes = TRUE,
   facing = "downward",
   nice_facing = TRUE,
-  position = "middle"
+  position = "middle",
+  ID = NULL
 )
 }
 \arguments{
@@ -92,6 +94,8 @@ display.}
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
+
+\item{ID}{character.}
 
 \item{check_overlap}{If \code{TRUE}, text that overlaps previous text in the
 same layer will not be plotted. \code{check_overlap} happens at draw time and in

@@ -1,7 +1,7 @@
 Package: piechart
 Type: Package
 Title: Tools for Draw Piecharts
-Version: 0.0.1
+Version: 0.0.2
 Author: Houyun Huang <houyunhuang@163.com>
 Maintainer: Houyun Huang <houyunhuang@163.com>
 Description: The 'piechart' package can be used to draw a piecharts
@@ -17,6 +17,7 @@ Imports:
     ggplot2 (>= 3.0.0), 
     ggforce,
     grid, 
+    magrittr,
     rlang, 
     purrr, 
     scales, 
