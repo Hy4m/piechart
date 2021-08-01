@@ -60,20 +60,21 @@ ggplot_add.geom_pie_label <- function(object, plot, object_name) {
   if(!is_piechart(plot)) {
     stop("`geom_pie_label()` can only be added on a piechart plot.", call. = FALSE)
   }
-  if(!is.null(object$ID)) {
-    data <- plot$plot_env[[object$ID]]
-  } else if(is.null(object$data) || is.function(object$data)) {
-    data <- plot$data
+  if(!is.null(object$data)) {
+    if(!is.function(object$data) || !is_piechart_data(object$data)) {
+      stop("`data` should be a piechart_data or function.", call. = FALSE)
+    }
+    if(is_piechart_data(object$data)) {
+      data <- dplyr::filter(data, .isLabel)
+    } else {
+      data <- plot$plot_env[[plot$plot_env$last_plot]]
+      data <- do.call(object$data, list(data = data))
+    }
   } else {
-    data <- object$data
+    data <- plot$plot_env[[plot$plot_env$last_plot]]
   }
 
   stopifnot(is_piechart_data(data))
-  .isLabel <- NULL
-  data <- dplyr::filter(data, .isLabel)
-  if(is.function(object$data)) {
-    data <- do.call(object$data, list(data = data))
-  }
   object$data <- data
   object <- object[setdiff(names(object), "ID")]
   object <- do.call(geom_label, object)

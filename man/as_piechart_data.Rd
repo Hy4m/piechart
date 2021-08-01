@@ -3,6 +3,7 @@
 \name{as_piechart_data}
 \alias{as_piechart_data}
 \alias{as_piechart_data.matrix}
+\alias{as_piechart_data.data.frame}
 \alias{as_piechart_data.dist}
 \title{Coerce to a Piechart data
 Functions to coerce an object to a piechart data if possible.}
@@ -20,6 +21,8 @@ as_piechart_data(x, ...)
   extra_mat = list(),
   ...
 )
+
+\method{as_piechart_data}{data.frame}(x, ...)
 
 \method{as_piechart_data}{dist}(x, ...)
 }

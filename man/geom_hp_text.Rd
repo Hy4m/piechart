@@ -15,10 +15,11 @@ geom_rtext(
   check_overlap = FALSE,
   na.rm = FALSE,
   show.legend = NA,
-  inherit.aes = TRUE,
+  inherit.aes = FALSE,
   facing = "clockwise",
   nice_facing = TRUE,
-  position = "top-outside"
+  position = "top-outside",
+  ID = NULL
 )
 
 geom_ctext(
@@ -32,7 +33,8 @@ geom_ctext(
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = FALSE,
-  hjust = "left"
+  hjust = "left",
+  ID = NULL
 )
 }
 \arguments{
@@ -98,6 +100,8 @@ the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
 \item{position}{one of middle, top-outside, top-inside, bottom-outside,
 bottom-inside.}
+
+\item{ID}{character.}
 
 \item{hjust}{one of left, middle or right.}
 }

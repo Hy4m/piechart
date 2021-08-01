@@ -7,6 +7,7 @@
 #' @param nice_facing logical value.
 #' @param position one of middle, top-outside, top-inside, bottom-outside,
 #' bottom-inside.
+#' @param ID character.
 #' @section Aesthetics:
 #' \code{geom_pie_text()} understands the following aesthetics (required aesthetics are in bold):
 #'     \itemize{
@@ -32,10 +33,11 @@ geom_rtext <- function(mapping = NULL,
                        check_overlap = FALSE,
                        na.rm = FALSE,
                        show.legend = NA,
-                       inherit.aes = TRUE,
+                       inherit.aes = FALSE,
                        facing = "clockwise",
                        nice_facing = TRUE,
-                       position = "top-outside") {
+                       position = "top-outside",
+                       ID = NULL) {
   structure(.Data = list(mapping = mapping,
                          data = data,
                          parse = parse,
@@ -48,6 +50,7 @@ geom_rtext <- function(mapping = NULL,
                          facing = facing,
                          nice_facing = nice_facing,
                          position = position,
+                         ID = ID,
                          ...),
             class = "geom_rtext")
 }
@@ -58,66 +61,69 @@ ggplot_add.geom_rtext <- function(object, plot, object_name) {
   if(!is_piechart(plot)) {
     stop("`geom_rtext()` can only be added on a piechart plot.", call. = FALSE)
   }
-  facing <- object$facing
-  facing <- match.arg(facing, c("binding", "clockwise"))
-  position <- object$position
-  position <- match.arg(position, c("top-outside", "bottom-outside"))
+  facing <- match.arg(object$facing, c("binding", "clockwise"))
+  position <- match.arg(object$position, c("top-outside", "bottom-outside"))
 
-  if(is.null(object$data) || is.function(object$data)) {
+  if(!is.null(object$ID)) {
+    data <- plot$plot_env[[object$ID]]
+  } else if(is.null(object$data)) {
     data <- plot$data
   } else {
     data <- object$data
   }
-  stopifnot(is_hp_data(data))
-  .isLabel <- NULL
-  data <- dplyr::filter(data, .isLabel)
-  if(is.function(object$data)) {
-    data <- do.call(object$data, list(data = data))
-  }
 
+  data <- attr(data, "META")
+  r0 <- data$r0
+  r1 <- data$r1
+  label <- data$row_names
+  n <- length(label)
+  start <- seq(data$start, data$end, length.out = n + 1)[-(n + 1)]
+  end <- seq(data$start, data$end, length.out = n + 1)[-1]
+  angle <- ((start + end) / 2) %% 360
   vjust <- hjust <- 0.5
   if(position == "top-outside") {
-    data <- dplyr::filter(data, data$.r0 == max(data$.r0))
-    .angle <- (data$.angle / pi * 180) %% 360
-    data$.x <- cos(data$.angle) * data$.r1 * 1.02
-    data$.y <- sin(data$.angle) * data$.r1 * 1.02
+    dd <- tibble::tibble(.x = cos(radian(angle)) * r1 * 1.02,
+                         .y = sin(radian(angle)) * r1 * 1.02,
+                         .label = label)
 
     if(facing == "binding") {
       vjust <- 1
     }
     if(facing == "clockwise") {
-      hjust <- ifelse(.angle > 270 | .angle < 90, 0, 1)
+      hjust <- ifelse(angle > 270 | angle < 90, 0, 1)
     }
   }
 
   if(position == "bottom-outside") {
-    data <- dplyr::filter(data, data$.r0 == min(data$.r0))
-    .angle <- (data$.angle / pi * 180) %% 360
-    data$.x <- cos(data$.angle) * data$.r0 * 0.98
-    data$.y <- sin(data$.angle) * data$.r0 * 0.98
+    dd <- tibble::tibble(.x = cos(radian(angle)) * r0 * 0.98,
+                         .y = sin(radian(angle)) * r0 * 0.98,
+                         .label = label)
 
     if(facing == "binding") {
       vjust <- 0
     }
     if(facing == "clockwise") {
-      hjust <- ifelse(.angle > 270 | .angle < 90, 1, 0)
+      hjust <- ifelse(angle > 270 | angle < 90, 1, 0)
     }
   }
 
-  data$.angle <- calc_text_angle(data$.angle,
-                                 facing = facing,
-                                 nice_facing = object$nice_facing)
-  data$hjust <- hjust
-  data$vjust <- vjust
+  dd$.angle <- calc_text_angle(radian(angle),
+                               facing = facing,
+                               nice_facing = object$nice_facing)
+  dd$hjust <- hjust
+  dd$vjust <- vjust
 
-  object$data <- data
+  object$data <- dd
   object$mapping <- if(is.null(object$mapping)) {
-    aes_(angle = ~.angle, hjust = ~hjust, vjust = ~vjust)
+    aes_(x = ~.x, y = ~.y, label = ~.label, angle = ~.angle,
+         hjust = ~hjust, vjust = ~vjust)
   } else {
-    modifyList(object$mapping, aes_(angle = ~.angle, hjust = ~hjust, vjust = ~vjust))
+    modifyList(object$mapping, aes_(x = ~.x, y = ~.y, angle = ~.angle,
+                                    label = ~.label, hjust = ~hjust,
+                                    vjust = ~vjust))
   }
 
-  object <- object[setdiff(names(object), c("facing", "nice_facing", "position"))]
+  object <- object[setdiff(names(object), c("facing", "nice_facing", "position", "ID"))]
 
   object <- do.call(geom_text, object)
   ggplot_add(object, plot, object_name)
@@ -135,7 +141,8 @@ geom_ctext <- function(mapping = NULL,
                        na.rm = FALSE,
                        show.legend = NA,
                        inherit.aes = FALSE,
-                       hjust = "left") {
+                       hjust = "left",
+                       ID = NULL) {
   structure(.Data = list(mapping = mapping,
                          data = data,
                          parse = parse,
@@ -146,6 +153,7 @@ geom_ctext <- function(mapping = NULL,
                          show.legend = show.legend,
                          inherit.aes = inherit.aes,
                          hjust = hjust,
+                         ID = ID,
                          ...),
             class = "geom_ctext")
 }
@@ -158,50 +166,57 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
   }
   hjust <- match.arg(object$hjust, c("left", "middle", "right"))
 
-  if(is.null(object$data)) {
+  if(!is.null(object$ID)) {
+    data <- plot$plot_env[[object$ID]]
+  } else if(is.null(object$data)) {
     data <- plot$data
   } else {
     data <- object$data
   }
-  stopifnot(is_hp_data(data))
-  data <- attr(data, "ctext")
+
+  data <- attr(data, "META")
+  start <- data$start
+  end <- data$end
+  label <- data$col_names
+  n <- length(label)
+  r0 <- seq(data$r0, data$r1, length.out = n + 1)[-(n + 1)]
+  r1 <- seq(data$r0, data$r1, length.out = n + 1)[-1]
+  r <- (r0 + r1) / 2
 
   if(hjust == "left") {
-    angle <- radian((data$.start + 1) %% 360)
-    x <- cos(angle) * data$.r
-    y <- sin(angle) * data$.r
-    rot <- data$.start + 1
-    hjust <- 1
+    angle <- radian((start + 1) %% 360)
+    dd <- tibble::tibble(.x = cos(angle) * r,
+                         .y = sin(angle) * r,
+                         .label = label,
+                         .angle = ((start + 1) %% 360) - 90,
+                         .hjust = 1)
   } else if(hjust == "right") {
-    angle <- radian((data$.end - 1) %% 360)
-    x <- cos(angle) * data$.r
-    y <- sin(angle) * data$.r
-    rot <- data$.start - 1
-    hjust <- 0
+    angle <- radian((data$end - 1) %% 360)
+    dd <- tibble::tibble(.x = cos(angle) * r,
+                         .y = sin(angle) * r,
+                         .label = label,
+                         .angle = ((end - 1) %% 360) - 90,
+                         .hjust = 0)
   } else {
-    angle <- radian(((data$.start + data$.end) / 2 + 180) %% 360)
-    x <- cos(angle) * data$.r
-    y <- sin(angle) * data$.r
-    rot <- (data$.start + data$.end) / 2 + 180
-    hjust <- 0.5
+    angle <- radian(((data$start + data$end) / 2 + 180) %% 360)
+    dd <- tibble::tibble(.x = cos(angle) * r,
+                         .y = sin(angle) * r,
+                         .label = label,
+                         .angle = (((start + end) / 2 + 180) %% 360) - 90,
+                         .hjust = 0.5)
   }
 
-  data <- tibble::tibble(x = x,
-                         y = y,
-                         label = data$.label,
-                         angle = (rot - 90) %% 360,
-                         hjust = hjust)
-  data$angle <- ifelse(data$angle > 180, data$angle -180, data$angle)
-  object$data <- data
+  dd$.angle <- ifelse(dd$.angle > 180, dd$.angle -180, dd$.angle)
+  object$data <- dd
 
   object$mapping <- if(is.null(object$mapping)) {
-    aes_(x = ~x, y = ~y, label = ~label, angle = ~angle, hjust = ~hjust)
+    aes_(x = ~.x, y = ~.y, label = ~.label, angle = ~.angle, hjust = ~.hjust)
   } else {
-    modifyList(object$mapping, aes_(x = ~x, y = ~y, label = ~label,
-                                    angle = ~angle, hjust = ~hjust))
+    modifyList(object$mapping, aes_(x = ~.x, y = ~.y, label = ~.label,
+                                    angle = ~.angle, hjust = ~.hjust))
   }
 
-  object <- object[setdiff(names(object), "hjust")]
+  object <- object[setdiff(names(object), c("hjust", "ID"))]
 
   object <- do.call(geom_text, object)
   ggplot_add(object, plot, object_name)

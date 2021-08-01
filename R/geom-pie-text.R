@@ -64,20 +64,21 @@ ggplot_add.geom_pie_text <- function(object, plot, object_name) {
   position <- match.arg(position, c("middle", "top-outside", "bottom-outside",
                                     "top-inside", "bottom-inside"))
 
-  if(!is.null(object$ID)) {
-    data <- plot$plot_env[[object$ID]]
-  } else if(is.null(object$data) || is.function(object$data)) {
-    data <- plot$data
+  if(!is.null(object$data)) {
+    if(!is.function(object$data) || !is_piechart_data(object$data)) {
+      stop("`data` should be a piechart_data or function.", call. = FALSE)
+    }
+    if(is_piechart_data(object$data)) {
+      data <- dplyr::filter(data, .isLabel)
+    } else {
+      data <- plot$plot_env[[plot$plot_env$last_plot]]
+      data <- do.call(object$data, list(data = data))
+    }
   } else {
-    data <- object$data
-  }
-  stopifnot(is_piechart_data(data))
-  .isLabel <- NULL
-  data <- dplyr::filter(data, .isLabel)
-  if(is.function(object$data)) {
-    data <- do.call(object$data, list(data = data))
+    data <- plot$plot_env[[plot$plot_env$last_plot]]
   }
 
+  stopifnot(is_piechart_data(data))
   .angle <- (data$.angle / pi * 180) %% 360
 
   vjust <- hjust <- 0.5

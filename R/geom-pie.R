@@ -45,6 +45,9 @@ ggplot_add.geom_pie <- function(object, plot, object_name) {
   if(!is_piechart(plot)) {
     stop("`geom_pie()` can only be added on a piechart plot.", call. = FALSE)
   }
+  if(is.null(object$ID)) {
+    object$ID <- paste0("ID", digest::AES(stats::rnorm(1, sd = 100)))
+  }
   if(is.null(object$data)) {
     data <- plot$data
   } else if(is.function(object$data)) {
@@ -89,12 +92,14 @@ ggplot_add.geom_pie <- function(object, plot, object_name) {
                                               "end", "steps"))]
   }
 
-  .isLabel <- NULL
-  object$data <- dplyr::filter(data, !.isLabel)
-
-  if(!is.null(object$ID)) {
+  if(!is_hp_data(data)) {
+    .isLabel <- NULL
+    object$data <- dplyr::filter(data, !.isLabel)
     plot$plot_env[[object$ID]] <- dplyr::filter(data, .isLabel)
+  } else {
+    plot$plot_env[[object$ID]] <- attr(data, "META")
   }
+  plot$plot_env$last_plot <- object$ID
 
   object <- object[setdiff(names(object), "ID")]
   object <- do.call(geom_polygon, object)

@@ -41,15 +41,22 @@ as_piechart_data.matrix <- function(x,
     r0 <- r1
     r1 <- temp
   }
+
+  start <- start %% 360
+  end <- end %% 360
+  if(end >= start) {
+    end <- start - start - (360 - end)
+  }
+
   rnm <- rownames(x) %||% row_names %||% paste0("Row", seq_len(n))
   cnm <- colnames(x) %||% col_names %||% paste0("Col", seq_len(m))
 
-  META <- list(r0 = r0,
-               r1 = r1,
-               start = start,
-               end = end,
-               row_names = rnm,
-               col_names = cnm)
+  META <- structure(list(r0 = r0,
+                         r1 = r1,
+                         start = start,
+                         end = end,
+                         row_names = rnm,
+                         col_names = cnm), class = "hp_meta")
 
   ur <- (r1 - r0) / m
   r0 <- r0 + (seq_len(m) - 1) * ur
@@ -66,7 +73,7 @@ as_piechart_data.matrix <- function(x,
     ids[[i]] <- as.vector(as.matrix(extra_mat[[i]]))
   }
 
-  .isLabel <- .label <- .r0 <- .r1 <- .angle <- NULL
+  .isLabel <- .ratio <- .value <- .r0 <- .r1 <- r0 <- r1 <- .angle <- NULL
   data <- piechart_data(ids,
                         mapping = aes_(value = ~1, r0 = ~r0, r1 = ~r1,
                                       label = ~row_names),
@@ -75,9 +82,17 @@ as_piechart_data.matrix <- function(x,
                         facet = . ~ col_names,
                         ...) %>%
     dplyr::filter(!.isLabel) %>%
-    dplyr::select(-.ratio, -.isLabel, -.label, -.angle, -.r0, -.r1)
+    dplyr::select(-.ratio, -.angle, -.r0, -.r1, -.value, -r0, -r1)
   structure(.Data = data, META = META,
             class = c("hp_data", class(data)))
+}
+
+#' @rdname  as_piechart_data
+#' @method as_piechart_data data.frame
+#' @export
+as_piechart_data.data.frame <- function(x, ...) {
+  x <- as.matrix(x)
+  as_piechart_data(x, ...)
 }
 
 #' @rdname  as_piechart_data

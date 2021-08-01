@@ -31,29 +31,11 @@ point_to_ring <- function(value = runif(5),
     stop("The value of 'sep' is too large.", call. = FALSE)
   }
 
-  if(start < 0) {
-    start <- 360 - (start %% 360)
+  start <- start %% 360
+  end <- end %% 360
+  if(end >= start) {
+    end <- start - start - (360 - end)
   }
-  if(start > 360) {
-    start <- start %% 360
-  }
-
-  if(end < 0) {
-    end <- 360 - (end %% 360)
-  }
-  if(end > 360) {
-    end <- end %% 360
-  }
-
-  if(start < end) {
-    end <- end - 360
-  }
-
-  if(start == end) {
-    end <- start + 360
-  }
-
-
 
   start <- radian(start)
   end <- radian(end)
