@@ -46,7 +46,7 @@ ggplot_add.geom_pie <- function(object, plot, object_name) {
     stop("`geom_pie()` can only be added on a piechart plot.", call. = FALSE)
   }
   if(is.null(object$ID)) {
-    object$ID <- paste0("ID", digest::AES(stats::rnorm(1, sd = 100)))
+    object$ID <- paste0("ID", digest::digest(stats::rnorm(1, sd = 100)))
   }
   if(is.null(object$data)) {
     data <- plot$data
