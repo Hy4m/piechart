@@ -1,9 +1,9 @@
 #' @title Annotation for Piechart
 #' Functions to draw axis, rect and so on.
+#' @param range origin range of data.
 #' @param breaks the points at which tick-marks are to be drawn.
 #' @param labels a character or expression vector of labels to be
 #' placed at the tickpoints.
-#' @param scale origin range of data.
 #' @param r,r0,r1 positive value.
 #' @param angle,start,end the angle in radians.
 #' @param dtick,dtext direction of ticks and labels.
@@ -16,32 +16,47 @@
 #' @param ... extra parameters.
 #' @return a gg object.
 #' @rdname annotation
-#' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 geom_path
 #' @export
-anno_rho_axis <- function(breaks,
-                          labels,
-                          scale,
-                          r = 0.5,
-                          start = 0,
-                          end = 360,
-                          dtick = "inside",
-                          ltick = 0.01,
-                          lcol = "black",
-                          lsize = 0.5,
-                          dtext = "inside",
-                          tcol = "black",
-                          tsize = 3.5,
-                          facing = "binding",
-                          nice_facing = TRUE,
-                          gap = 0.02,
-                          ...) {
+anno_x_axis <- function(range,
+                        breaks = NULL,
+                        labels = NULL,
+                        r = 0.5,
+                        start = 120,
+                        end = 0,
+                        dtick = "inside",
+                        ltick = 0.02,
+                        lcol = "black",
+                        lsize = 0.5,
+                        dtext = "inside",
+                        tcol = "black",
+                        tsize = 3.5,
+                        facing = "binding",
+                        nice_facing = TRUE,
+                        gap = 0.02,
+                        ...) {
   dtick <- match.arg(dtick, c("inside", "outside"))
   dtext <- match.arg(dtext, c("inside", "outside"))
   facing <- match.arg(facing, c("binding", "clockwise", "downward"))
-  start <- radian(start %% 360)
-  end <- radian(end %% 360)
-  b_angle <- scales::rescale(breaks, to = c(start, end), from = scale)
-  tt <- seq(start, end, length.out = 300)
+
+  if(is.null(breaks)) {
+    breaks <- pretty(range)
+    breaks <- breaks[breaks >= range[1] & breaks <= range[2]]
+  }
+  if(is.null(labels)) {
+    labels <- breaks
+  }
+
+  start <- start %% 360
+  end <- end %% 360
+  if(end >= start) {
+    end <- start - start - (360 - end)
+  }
+  start <- radian(start)
+  end <- radian(end)
+
+  b_angle <- scales::rescale(breaks, to = c(start, end), from = range)
+  tt <- seq(start, end, length.out = 500)
 
   if(dtick == "outside") {
     ltick <- -ltick
@@ -60,7 +75,7 @@ anno_rho_axis <- function(breaks,
                       angle = angle)
   lx <- c(cos(tt) * r, cos(rep(b_angle, each = 2)) * c(r, r - ltick))
   ly <- c(sin(tt) * r, sin(rep(b_angle, each = 2)) * c(r, r - ltick))
-  ids <- c(rep_len("axis", 300), rep(paste0("ticks", seq_along(breaks)), each = 2))
+  ids <- c(rep("axis", 500), rep(paste0("ticks", seq_along(breaks)), each = 2))
   line_data <- tibble(x = lx,
                       y = ly,
                       ids = ids)
@@ -70,7 +85,7 @@ anno_rho_axis <- function(breaks,
                     colour = tcol,
                     size = tsize,
                     inherit.aes = FALSE)
-  line <- geom_line(mapping = aes_(x = ~x, y = ~y, group = ~ids),
+  line <- geom_path(mapping = aes_(x = ~x, y = ~y, group = ~ids),
                     data = line_data,
                     colour = lcol,
                     size = lsize,
@@ -80,24 +95,32 @@ anno_rho_axis <- function(breaks,
 
 #' @rdname annotation
 #' @export
-anno_alpha_axis <- function(breaks,
-                            labels,
-                            scale,
-                            r0 = 0.5,
-                            r1 = 1,
-                            angle = 90,
-                            dtick = "left",
-                            ltick = 1,
-                            lcol = "black",
-                            lsize = 0.5,
-                            dtext = "left",
-                            tcol = "black",
-                            tsize = 3.5,
-                            gap = 1,
-                            ...){
+anno_y_axis <- function(range,
+                        breaks = NULL,
+                        labels = NULL,
+                        r0 = 0.5,
+                        r1 = 1,
+                        angle = 90,
+                        dtick = "left",
+                        ltick = 1,
+                        lcol = "black",
+                        lsize = 0.5,
+                        dtext = "left",
+                        tcol = "black",
+                        tsize = 3.5,
+                        gap = 1,
+                        ...){
 
   dtick <- match.arg(dtick, c("left", "right"))
   dtext <- match.arg(dtext, c("left", "right"))
+
+  if(is.null(breaks)) {
+    breaks <- pretty(range)
+    breaks <- breaks[breaks >= range[1] & breaks <= range[2]]
+  }
+  if(is.null(labels)) {
+    labels <- breaks
+  }
 
   if(dtick == "right") {
     ltick <- -ltick
@@ -107,7 +130,7 @@ anno_alpha_axis <- function(breaks,
     gap <- -gap
   }
 
-  rr <- scales::rescale(breaks, to = c(r0, r1), from = scale)
+  rr <- scales::rescale(breaks, to = c(r0, r1), from = range)
   tx <- cos(radian(angle + ltick + gap)) * rr
   ty <- sin(radian(angle + ltick + gap)) * rr
 
@@ -135,7 +158,7 @@ anno_alpha_axis <- function(breaks,
                     colour = tcol,
                     size = tsize,
                     inherit.aes = FALSE)
-  line <- geom_line(mapping = aes_(x = ~x, y = ~y, group = ~ids),
+  line <- geom_path(mapping = aes_(x = ~x, y = ~y, group = ~ids),
                     data = line_data,
                     colour = lcol,
                     size = lsize,
@@ -158,11 +181,13 @@ anno_rect <- function(r0 = 0.5,
 
   start <- start %% 360
   end <- end %% 360
-  end <- ifelse(end == 0, 360, end)
-  mm <- ceiling(abs(1000 * radian(start - end)))
+  mm <- ceiling(abs(300 * radian(start - end)))
 
   data <- purrr::pmap_dfr(list(r0, r1, start, end, mm, seq_len(nn)),
                   function(.r0, .r1, .start, .end, .mm, .nn) {
+                    if(.end >= .start) {
+                      .end <- .start - .start - (360 - .end)
+                    }
                     tt <- radian(seq(.start, .end, length.out = .mm))
                     tt <- c(tt, rev(tt))
                     rr <- rep(c(.r0, .r1), each = .mm)
