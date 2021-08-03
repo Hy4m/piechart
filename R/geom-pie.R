@@ -52,7 +52,7 @@ ggplot_add.geom_pie <- function(object, plot, object_name) {
     data <- plot$data
   } else if(is.function(object$data)) {
     data <- do.call(object$data, list(data = plot$data))
-  } else if (is_piechart_data(data)){
+  } else if (is_piechart_data(object$data)){
     data <- object$data
   } else {
     mapping <- object$mapping[c("value", "r0", "r1", "sep", "label")]

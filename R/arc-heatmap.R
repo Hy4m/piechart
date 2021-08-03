@@ -64,15 +64,18 @@ ggplot_add.geom_rtext <- function(object, plot, object_name) {
   facing <- match.arg(object$facing, c("binding", "clockwise"))
   position <- match.arg(object$position, c("top-outside", "bottom-outside"))
 
-  if(!is.null(object$ID)) {
-    data <- plot$plot_env[[object$ID]]
-  } else if(is.null(object$data)) {
-    data <- plot$data
+  if(!is.null(object$data)) {
+    data <- attr(object$data, "META")
   } else {
-    data <- object$data
+    if(!is.null(object$ID)) {
+      data <- plot$plot_env[[object$ID]]
+    } else {
+      data <- plot$plot_env[[plot$plot_env$last_plot]]
+    }
   }
 
-  data <- attr(data, "META")
+  print(data)
+  stopifnot(inherits(data, "hp_meta"))
   r0 <- data$r0
   r1 <- data$r1
   label <- data$row_names
