@@ -69,6 +69,7 @@ ggplot_add.geom_pie_text <- function(object, plot, object_name) {
       stop("`data` should be a piechart_data or function.", call. = FALSE)
     }
     if(is_piechart_data(object$data)) {
+      .isLabel <- NULL
       data <- dplyr::filter(data, .isLabel)
     } else {
       data <- plot$plot_env[[plot$plot_env$last_plot]]
