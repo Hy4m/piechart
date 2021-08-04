@@ -65,12 +65,12 @@ ggplot_add.geom_pie_text <- function(object, plot, object_name) {
                                     "top-inside", "bottom-inside"))
 
   if(!is.null(object$data)) {
-    if(!is.function(object$data) || !is_piechart_data(object$data)) {
+    if(!is.function(object$data) && !is_piechart_data(object$data)) {
       stop("`data` should be a piechart_data or function.", call. = FALSE)
     }
     if(is_piechart_data(object$data)) {
       .isLabel <- NULL
-      data <- dplyr::filter(data, .isLabel)
+      data <- dplyr::filter(object$data, .isLabel)
     } else {
       data <- plot$plot_env[[plot$plot_env$last_plot]]
       data <- do.call(object$data, list(data = data))
