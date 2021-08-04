@@ -74,7 +74,6 @@ ggplot_add.geom_rtext <- function(object, plot, object_name) {
     }
   }
 
-  print(data)
   stopifnot(inherits(data, "hp_meta"))
   r0 <- data$r0
   r1 <- data$r1
