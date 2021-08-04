@@ -1,3 +1,21 @@
+#' Geom function for draw quadline.
+#' @title Quadline Geom
+#' @param mapping Set of aesthetic mappings.
+#' @param data a data frame.
+#' @param r a numeric value between 0 to 1.
+#' @param from,to specifies the start and end ID of the connection.
+#' @param ... other parameters.
+#' @section Aesthetics:
+#' \code{geom_arclink()} understands the following aesthetics (required aesthetics are in bold):
+#'     \itemize{
+#'       \item \strong{\code{from}}
+#'       \item \strong{\code{to}}
+#'       \item \code{alpha}
+#'       \item \code{colour}
+#'       \item \code{size}
+#'       \item \code{linetype}
+#'    }
+#' @rdname geom_arclink
 #' @export
 geom_arclink <- function(mapping = NULL,
                          data = NULL,
