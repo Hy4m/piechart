@@ -168,15 +168,17 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
   }
   hjust <- match.arg(object$hjust, c("left", "middle", "right"))
 
-  if(!is.null(object$ID)) {
-    data <- plot$plot_env[[object$ID]]
-  } else if(is.null(object$data)) {
-    data <- plot$data
+  if(!is.null(object$data)) {
+    data <- attr(object$data, "META")
   } else {
-    data <- object$data
+    if(!is.null(object$ID)) {
+      data <- plot$plot_env[[object$ID]]
+    } else {
+      data <- plot$plot_env[[plot$plot_env$last_plot]]
+    }
   }
 
-  data <- attr(data, "META")
+  stopifnot(inherits(data, "hp_meta"))
   start <- data$start
   end <- data$end
   label <- data$col_names
