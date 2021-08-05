@@ -194,6 +194,8 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
                          .label = label,
                          .angle = ((start + 1) %% 360) - 90,
                          .hjust = 1)
+    dd$.hjust <- ifelse(dd$.angle > 180, 0, 1)
+    dd$.angle <- ifelse(dd$.angle > 180, dd$.angle -180, dd$.angle)
   } else if(hjust == "right") {
     angle <- radian((data$end - 1) %% 360)
     dd <- tibble::tibble(.x = cos(angle) * r,
@@ -201,6 +203,8 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
                          .label = label,
                          .angle = ((end - 1) %% 360) - 90,
                          .hjust = 0)
+    dd$.hjust <- ifelse(dd$.angle > 180, 1, 0)
+    dd$.angle <- ifelse(dd$.angle > 180, dd$.angle -180, dd$.angle)
   } else {
     angle <- radian(((data$start + data$end) / 2 + 180) %% 360)
     dd <- tibble::tibble(.x = cos(angle) * r,
@@ -211,6 +215,7 @@ ggplot_add.geom_ctext <- function(object, plot, object_name) {
   }
 
   dd$.angle <- ifelse(dd$.angle > 180, dd$.angle -180, dd$.angle)
+
   object$data <- dd
 
   object$mapping <- if(is.null(object$mapping)) {
