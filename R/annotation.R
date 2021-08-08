@@ -181,6 +181,9 @@ anno_rect <- function(r0 = 0.5,
 
   start <- start %% 360
   end <- end %% 360
+  if(end >= start) {
+    end <- start - start - (360 - end)
+  }
   mm <- ceiling(abs(300 * radian(start - end)))
 
   data <- purrr::pmap_dfr(list(r0, r1, start, end, mm, seq_len(nn)),
