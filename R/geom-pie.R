@@ -42,9 +42,6 @@ geom_pie <- function(mapping = NULL,
 #' @importFrom ggplot2 ggplot_add
 #' @export
 ggplot_add.geom_pie <- function(object, plot, object_name) {
-  if(!is_piechart(plot)) {
-    stop("`geom_pie()` can only be added on a piechart plot.", call. = FALSE)
-  }
   if(is.null(object$ID)) {
     object$ID <- paste0("ID", digest::digest(stats::rnorm(1, sd = 100)))
   }

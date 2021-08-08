@@ -57,9 +57,6 @@ geom_pie_label <- function(mapping = NULL,
 #' @importFrom ggplot2 ggplot_add
 #' @export
 ggplot_add.geom_pie_label <- function(object, plot, object_name) {
-  if(!is_piechart(plot)) {
-    stop("`geom_pie_label()` can only be added on a piechart plot.", call. = FALSE)
-  }
   if(!is.null(object$data)) {
     if(!is.function(object$data) && !is_piechart_data(object$data)) {
       stop("`data` should be a piechart_data or function.", call. = FALSE)

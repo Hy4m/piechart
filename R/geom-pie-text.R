@@ -57,9 +57,6 @@ geom_pie_text <- function(mapping = NULL,
 #' @importFrom ggplot2 ggplot_add
 #' @export
 ggplot_add.geom_pie_text <- function(object, plot, object_name) {
-  if(!is_piechart(plot)) {
-    stop("`geom_pie_text()` can only be added on a piechart plot.", call. = FALSE)
-  }
   position <- object$position
   position <- match.arg(position, c("middle", "top-outside", "bottom-outside",
                                     "top-inside", "bottom-inside"))

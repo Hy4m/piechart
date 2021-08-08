@@ -58,9 +58,6 @@ geom_rtext <- function(mapping = NULL,
 #' @importFrom ggplot2 ggplot_add
 #' @export
 ggplot_add.geom_rtext <- function(object, plot, object_name) {
-  if(!is_piechart(plot)) {
-    stop("`geom_rtext()` can only be added on a piechart plot.", call. = FALSE)
-  }
   facing <- match.arg(object$facing, c("binding", "clockwise"))
   position <- match.arg(object$position, c("top-outside", "bottom-outside"))
 
@@ -163,9 +160,6 @@ geom_ctext <- function(mapping = NULL,
 #' @importFrom ggplot2 ggplot_add
 #' @export
 ggplot_add.geom_ctext <- function(object, plot, object_name) {
-  if(!is_piechart(plot)) {
-    stop("`geom_ctext()` can only be added on a piechart plot.", call. = FALSE)
-  }
   hjust <- match.arg(object$hjust, c("left", "middle", "right"))
 
   if(!is.null(object$data)) {

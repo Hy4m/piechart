@@ -8,8 +8,8 @@ geom_arclink(
   mapping = NULL,
   data = NULL,
   r = 0.98,
-  from = NULL,
-  to = NULL,
+  from_id = NULL,
+  to_id = NULL,
   ...
 )
 }
@@ -20,9 +20,9 @@ geom_arclink(
 
 \item{r}{a numeric value between 0 to 1.}
 
-\item{from, to}{specifies the start and end ID of the connection.}
-
 \item{...}{other parameters.}
+
+\item{from, to}{specifies the start and end ID of the connection.}
 }
 \description{
 Geom function for draw quadline.
