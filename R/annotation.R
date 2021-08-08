@@ -69,10 +69,21 @@ anno_x_axis <- function(range,
   tx <- cos(b_angle) * (r - ltick - gap)
   ty <- sin(b_angle) * (r - ltick - gap)
   angle <- calc_text_angle(b_angle, facing, nice_facing)
+
+  hjust <- 0.5
+  if(facing == "clockwise") {
+    ba <- degree(b_angle) %% 360
+    hjust <- if(dtext == "inside") {
+      ifelse(ba <= 90 | ba >= 270, 1, 0)
+    } else {
+      ifelse(ba <= 90 | ba >= 270, 0, 1)
+    }
+  }
   text_data <- tibble(x = tx,
                       y = ty,
                       label = labels,
-                      angle = angle)
+                      angle = angle,
+                      hjust = hjust)
   lx <- c(cos(tt) * r, cos(rep(b_angle, each = 2)) * c(r, r - ltick))
   ly <- c(sin(tt) * r, sin(rep(b_angle, each = 2)) * c(r, r - ltick))
   ids <- c(rep("axis", 500), rep(paste0("ticks", seq_along(breaks)), each = 2))
@@ -80,7 +91,8 @@ anno_x_axis <- function(range,
                       y = ly,
                       ids = ids)
 
-  text <- geom_text(mapping = aes_(x = ~x, y = ~y, label = ~label, angle = ~angle),
+  text <- geom_text(mapping = aes_(x = ~x, y = ~y, label = ~label,
+                                   angle = ~angle, hjust = ~hjust),
                     data = text_data,
                     colour = tcol,
                     size = tsize,
