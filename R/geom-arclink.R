@@ -20,14 +20,14 @@
 geom_arclink <- function(mapping = NULL,
                          data = NULL,
                          r = 0.98,
-                         from = NULL,
-                         to = NULL,
+                         from_id = NULL,
+                         to_id = NULL,
                          ...) {
   structure(list(data = data,
                  mapping = mapping,
                  r = r,
-                 from = from,
-                 to = to,
+                 from_id = from_id,
+                 to_id = to_id,
                  ...), class = "geom_arclink")
 }
 
@@ -36,8 +36,8 @@ ggplot_add.geom_arclink <- function(object, plot, object_name) {
   stopifnot(is_piechart(plot))
   data <- object$data
   mapping <- object$mapping
-  from <- object$from
-  to <- object$to
+  from_id <- object$from_id
+  to_id <- object$to_id
 
   if(!is.null(mapping) && !all(c("from", "to") %in% names(mapping))) {
     stop("mapping should contain 'from' and 'to' at least.", call. = FALSE)
@@ -55,18 +55,18 @@ ggplot_add.geom_arclink <- function(object, plot, object_name) {
     to_var <- rlang::as_name(mapping$to)
   }
 
-  if(is.null(from) && is.null(to)) {
-    from <- to <- plot$plot_env$last_plot
+  if(is.null(from_id) && is.null(to_id)) {
+    from_id <- to_id <- plot$plot_env$last_plot
   }
-  if(is.null(from)) {
-    from <- to
+  if(is.null(from_id)) {
+    from_id <- to_id
   }
-  if(is.null(to)) {
-    to <- from
+  if(is.null(to_id)) {
+    to_id <- from_id
   }
 
-  from_id <- plot$plot_env[[from]]
-  to_id <- plot$plot_env[[to]]
+  from_id <- plot$plot_env[[from_id]]
+  to_id <- plot$plot_env[[to_id]]
   if(is_piechart_data(from_id)) {
     angle <- from_id$.angle
     label <- from_id$.label
