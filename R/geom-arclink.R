@@ -3,7 +3,7 @@
 #' @param mapping Set of aesthetic mappings.
 #' @param data a data frame.
 #' @param r a numeric value between 0 to 1.
-#' @param from,to specifies the start and end ID of the connection.
+#' @param from_id,to_id specifies the start and end ID of the connection.
 #' @param ... other parameters.
 #' @section Aesthetics:
 #' \code{geom_arclink()} understands the following aesthetics (required aesthetics are in bold):

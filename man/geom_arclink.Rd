@@ -20,9 +20,9 @@ geom_arclink(
 
 \item{r}{a numeric value between 0 to 1.}
 
-\item{...}{other parameters.}
+\item{from_id, to_id}{specifies the start and end ID of the connection.}
 
-\item{from, to}{specifies the start and end ID of the connection.}
+\item{...}{other parameters.}
 }
 \description{
 Geom function for draw quadline.
